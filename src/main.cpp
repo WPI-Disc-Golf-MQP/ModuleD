@@ -30,6 +30,11 @@ int LIFT_MOTOR_DIRECTION_PIN = 6;
 // timers
 long turning_start_time;
 
+// Motor controls
+int lift_motor_speed = 50;
+bool lift_motor_run = false;
+bool lift_motor_up = true;
+
 // states for state machine, initialize to PHOTOBOOTH_STATE::PHOTOBOOTH_IDLE
 enum PHOTOBOOTH_STATE
 {
@@ -79,9 +84,6 @@ bool verify_photobooth_complete() {
 // long spin_motor_last_step = millis();
 // bool spin_motor_last_digital_write = false;
 
-// ?
-// long when_spinning_started = millis();
-
 /**
  * Starts the photobooth process by setting the lift motor to go up.
  * 
@@ -92,6 +94,8 @@ bool verify_photobooth_complete() {
 void start_photobooth() {
   loginfo("Hi! Starting photobooth!");
   photobooth_state = PHOTOBOOTH_STATE::PHOTOBOOTH_RISING;
+  lift_motor_run = true;
+  lift_motor_up = true;
   // digitalWrite(yaxis_motor_dir_pin, LOW);
   // run_yaxis_motor = true; 
   // yaxis_motor_last_step = millis(); // I don't think you need this 
@@ -114,6 +118,7 @@ void start_photobooth() {
 void stop_photobooth() {
   // run_yaxis_motor = false; 
   // run_spin_motor = false;
+  lift_motor_run = false;
   photobooth_state = PHOTOBOOTH_STATE::PHOTOBOOTH_IDLE; 
 }
 
@@ -129,32 +134,26 @@ void calibrate_photobooth() {
  */
 void check_photobooth() {
 
-  // // turn on or off the enable pins
-  // if (run_yaxis_motor == true) {
-  //   digitalWrite(yaxis_motor_enable_pin, HIGH);
-  // } else {
-  //   digitalWrite(yaxis_motor_enable_pin, LOW);
-  // }
+  // set lift motor direction
+  if (lift_motor_up == true) {
+    digitalWrite(LIFT_MOTOR_DIRECTION_PIN, LOW);
+  } else {
+    digitalWrite(LIFT_MOTOR_DIRECTION_PIN, HIGH);
+  }
 
+  // should the lift motor run?
+  if (lift_motor_run == true) {
+    analogWrite(LIFT_MOTOR_SPEED_PIN, lift_motor_speed);
+  } else {
+    analogWrite(LIFT_MOTOR_SPEED_PIN, 0);
+  }
+
+  
   // if (run_spin_motor == true) {
   //   // TODO: // digitalWrite() // digital write the stepper motor enable high 
   // } else {
   //   // TODO: // digial write stepper motor enable low 
   // }
-
-  // // drive the motor if the flag has been set to run it // TODO implimet the sleep pin as well 
-  // if ((yaxis_motor_last_step+0.5 < millis()) && run_yaxis_motor == true) {
-  //   // digitalWrite(step_pin, HIGH);
-  //   // delay(2);
-  //   // digitalWrite(step_pin, LOW);
-  //   // delay(2); 
-
-  //   loginfo("Spinning yaxis motor");
-
-  //   digitalWrite(yaxis_motor_step_pin, !yaxis_motor_last_digital_write);
-  //   yaxis_motor_last_digital_write = !yaxis_motor_last_digital_write; 
-  //   yaxis_motor_last_step = millis(); 
-  // } 
 
   // if ((spin_motor_last_step+2 < millis()) && run_spin_motor == true) {
   //   // TODO: add the spin stepper motor
@@ -172,6 +171,8 @@ void check_photobooth() {
       // for testing, change state after program has been running to 2 seconds
       if (millis() > 2000) {
         photobooth_state = PHOTOBOOTH_STATE::PHOTOBOOTH_RISING;
+        lift_motor_run = true;
+        lift_motor_up = true;
       }
       break;
     
@@ -182,7 +183,7 @@ void check_photobooth() {
       digitalWrite(LED_GREEN, HIGH);
       
       if (upper_limit_switch() == true) {
-        // run_yaxis_motor = false; 
+        lift_motor_run = false; 
         photobooth_state = PHOTOBOOTH_STATE::PHOTOBOOTH_TURNING;
         turning_start_time = millis();
         // when_spinning_started = millis();
@@ -199,6 +200,8 @@ void check_photobooth() {
       digitalWrite(LED_GREEN, LOW);
 
       if (millis() > turning_start_time + 2000) {
+        lift_motor_up = false;
+        lift_motor_run = true;
         photobooth_state = PHOTOBOOTH_STATE::PHOTOBOOTH_LOWERING;
       }
 
@@ -211,7 +214,7 @@ void check_photobooth() {
       digitalWrite(LED_GREEN, HIGH);
 
       if (lower_limit_switch() == true) {
-        // run_yaxis_motor = false; 
+        lift_motor_run = false; 
         photobooth_state = PHOTOBOOTH_STATE::PHOTOBOOTH_IDLE;
         photobooth_module -> publish_status(MODULE_STATUS::COMPLETE);
       }
@@ -383,8 +386,9 @@ void setup()
   pinMode(LIFT_MOTOR_DIRECTION_PIN, OUTPUT);
 
   // set intial state
-  digitalWrite(LED_BLUE, LOW);
-  digitalWrite(LED_YELLOW, HIGH);
+  // All LEDs on
+  digitalWrite(LED_BLUE, HIGH);
+  digitalWrite(LED_YELLOW, LOW);
   digitalWrite(LED_GREEN, LOW);
   digitalWrite(LIFT_MOTOR_DIRECTION_PIN, LOW);
   analogWrite(LIFT_MOTOR_SPEED_PIN, 0);
