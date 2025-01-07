@@ -53,6 +53,26 @@ It then sets the initial state for all pins.
 
  This uses `periodic_status()` from `std_node.cpp` to see if enough time (`STATUS_FREQ`) has passed to update status. If so, then it uses `publish_status()` to publish the status on the topic `photobooth_status`.
 
- It then uses spinOnce() to call any available callbacks.
+ It then uses spinOnce() to call any available callbacks. The `process_request_callback()` function in `std_node.cpp` is called whenever a message is received on the topic `photobooth_request`. Depending on the message, it will:
+
+ | REQUEST         | ACTION                                                    |
+ |:----------------|:----------------------------------------------------------|
+ | START           | publish status IN_PROGRESS                                |
+ |                 | run start_callback (start_photobooth)                     |
+ | VERIFY_COMPLETE | run verify_complete_callback (verify_photobooth_complete) |
+ |                 | if true, publish status COMPLETE                          |
+ |                 | if false, publish status IN_PROGRESS                      |
+ | STOP            | publish status IDLE                                       |
+ |                 | run idle_callback (stop_photobooth)                       |
+ | CALIBRATE       | publish status IN_PROGRESS                                |
+ |                 | run calibrate_callback (calibrate_photobooth)             |
 
  It then runs `check_photobooth()` to implement the state machine.
+
+ ### State machine
+
+ The state machine is implemented in the `check_photobooth()` function.
+
+ *state machine diagram*
+
+ 

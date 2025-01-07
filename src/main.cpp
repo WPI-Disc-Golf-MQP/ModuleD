@@ -31,7 +31,7 @@ int LIFT_MOTOR_DIRECTION_PIN = 6;
 long turning_start_time;
 
 // Motor controls
-int lift_motor_speed = 50;
+int lift_motor_speed = 175;
 bool lift_motor_run = false;
 bool lift_motor_up = true;
 
@@ -66,23 +66,12 @@ bool lower_limit_switch() {
 }
 
 /**
- * The photobooth has finished if we are in the PHOTOBOOTH_IDLE state
- * 
- * @return T/F
+ * Turn turntable routines
  */
-bool verify_photobooth_complete() {
-  return photobooth_state == PHOTOBOOTH_STATE::PHOTOBOOTH_IDLE;
-}
 
-// ?
-// bool run_yaxis_motor = false;
-// long yaxis_motor_last_step = millis();
-// bool yaxis_motor_last_digital_write = false;
 
-// ?
-// bool run_spin_motor = false; 
-// long spin_motor_last_step = millis();
-// bool spin_motor_last_digital_write = false;
+// ---------- ---------- PHOTOBOOTH CALLBACKS ---------- ----------
+
 
 /**
  * Starts the photobooth process by setting the lift motor to go up.
@@ -101,13 +90,26 @@ void start_photobooth() {
   // yaxis_motor_last_step = millis(); // I don't think you need this 
 }
 
-/**
- * Turn turntable routines
- */
 
 /**
- * lift motor down
+ * The photobooth has finished if we are in the PHOTOBOOTH_IDLE state
+ * 
+ * @return T/F
  */
+bool verify_photobooth_complete() {
+  return photobooth_state == PHOTOBOOTH_STATE::PHOTOBOOTH_IDLE;
+}
+
+// ?
+// bool run_yaxis_motor = false;
+// long yaxis_motor_last_step = millis();
+// bool yaxis_motor_last_digital_write = false;
+
+// ?
+// bool run_spin_motor = false; 
+// long spin_motor_last_step = millis();
+// bool spin_motor_last_digital_write = false;
+
 
 /**
  * Stops the photobooth process
@@ -122,9 +124,17 @@ void stop_photobooth() {
   photobooth_state = PHOTOBOOTH_STATE::PHOTOBOOTH_IDLE; 
 }
 
+
+/**
+ * This is needed for the calibrate_callback. It doesn't do anything.
+ */
 void calibrate_photobooth() {
   loginfo("calibrate_photobooth; not implemented"); //TODO: Implement calibration
 }
+
+
+// ---------- ---------- PHOTOBOOTH STATE MACHINE ---------- ----------
+
 
 /**
  * Sets outputs as needed by current state.
@@ -257,69 +267,6 @@ void check_photobooth() {
 
 
 
-
-// void start_top_motor(int speed = 230)
-// {
-//     digitalWrite(UPPER_INVERT_PIN, LOW);
-//     analogWrite(UPPER_SPEED_PIN, speed); // start
-// }
-
-// void stop_top_motor()
-// {
-//     analogWrite(UPPER_SPEED_PIN, 0); // stop
-// }
-
-// void start_teeth_motor()
-// {
-//     // TODO: make teeth motor start
-// }
-
-// void stop_teeth_motor()
-// {
-//     // TODO: make teeth motor stop
-// }
-
-// void start_intake_motor(int speed = 230)
-// {
-//     digitalWrite(INTAKE_INVERT_PIN, LOW);
-//     analogWrite(INTAKE_SPEED_PIN, speed); // start
-//     Serial.println("intake motor started");
-// }
-
-// void stop_intake_motor()
-// {
-//     analogWrite(INTAKE_SPEED_PIN, 0); // stop
-//     Serial.println("intake motor stopped");
-// }
-
-// // ---------- ---------- ROS INTAKE FUNCTIONS ---------- ----------
-
-// void handle_intake_start()
-// {
-//     loginfo("start_intake");
-//     start_intake_motor();
-//     moved_to_INTAKE_RELEASE_time = millis();
-//     intake_state = INTAKE_STATE::INTAKE_SEND;
-// }
-
-// void handle_stop_intake()
-// {
-//     stop_top_motor();
-//     stop_teeth_motor();
-//     stop_intake_motor();
-//     intake_state = INTAKE_STATE::INTAKE_IDLE;
-// }
-
-// bool verify_intake_complete()
-// {
-//     return intake_state == INTAKE_STATE::INTAKE_IDLE;
-// }
-
-// void calibrate_intake()
-// {
-//     loginfo("calibrate_intake; not implemented"); // TODO: Implement calibration
-// }
-
 // // ---------- ---------- INTAKE TIMER CHECK & HANDLE ---------- ----------
 
 // bool check_intake_timer()
@@ -338,31 +285,8 @@ void check_photobooth() {
 //     }
 // }
 
-// // ---------- ---------- BEAM BREAK CHECK & HANDLE ---------- ----------
 
-// bool beam_break_val_prev = 0;
-// bool check_beam_break()
-// {
-//     bool beam_break_val = digitalRead(BEAM_BREAK_PIN); // read beam break pin
-//     if (beam_break_val != beam_break_val_prev)
-//         loginfo("Intake beam break changed state to: " + String(beam_break_val)); // logging function
-//     bool beam_broken = beam_break_val == 0 && beam_break_val_prev == 1;
-//     beam_break_val_prev = beam_break_val; // set previous value to current value
-//     return beam_broken;
-// }
-
-// void handle_beam_break()
-// {
-//     if (intake_state == INTAKE_STATE::INTAKE_RECIEVE)
-//     {
-//         stop_top_motor();
-//         stop_teeth_motor();
-//         intake_state = INTAKE_STATE::INTAKE_IDLE;
-//         intake_module->publish_status(MODULE_STATUS::COMPLETE);
-//     }
-// }
-
-// // ---------- ---------- SETUP ---------- ----------
+// ---------- ---------- SETUP ---------- ----------
 
 void setup()
 {
@@ -396,6 +320,7 @@ void setup()
   loginfo("setup() Complete");
 }
 
+
 // ---------- ---------- LOOP ---------- ----------
 
 void loop()
@@ -403,4 +328,5 @@ void loop()
     periodic_status();
     nh.spinOnce();
     check_photobooth();
+    // change to check and then handle?
 }
