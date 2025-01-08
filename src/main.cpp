@@ -177,13 +177,13 @@ void check_photobooth() {
       digitalWrite(LED_YELLOW, HIGH);
       digitalWrite(LED_GREEN, HIGH);
 
-      // do nothing
-      // for testing, change state after program has been running to 2 seconds
-      if (millis() > 2000) {
-        photobooth_state = PHOTOBOOTH_STATE::PHOTOBOOTH_RISING;
-        lift_motor_run = true;
-        lift_motor_up = true;
-      }
+      // // do nothing
+      // // for testing, change state after program has been running to 2 seconds
+      // if (millis() > 2000) {
+      //   photobooth_state = PHOTOBOOTH_STATE::PHOTOBOOTH_RISING;
+      //   lift_motor_run = true;
+      //   lift_motor_up = true;
+      // }
       break;
     
     case PHOTOBOOTH_STATE::PHOTOBOOTH_RISING:
@@ -224,7 +224,8 @@ void check_photobooth() {
       digitalWrite(LED_GREEN, HIGH);
 
       if (lower_limit_switch() == true) {
-        lift_motor_run = false; 
+        lift_motor_run = false;
+        // stop stepper motor 
         photobooth_state = PHOTOBOOTH_STATE::PHOTOBOOTH_IDLE;
         photobooth_module -> publish_status(MODULE_STATUS::COMPLETE);
       }
@@ -235,12 +236,6 @@ void check_photobooth() {
   // photobooth_module -> publish_status((int) photobooth_state);
 
 };
-
-// 
-// 
-// 
-// 
-// 
 
 
     // case TURNTABLE_STATE::TURNTABLE_SPINNING:
@@ -254,16 +249,7 @@ void check_photobooth() {
     //   }
 
     //   break;
-    // case TURNTABLE_STATE::TURNTABLE_LOWERING:
-    //   if (lower_limit_switched() == true) {
-    //     run_yaxis_motor = false; 
-    //     run_spin_motor = false; 
-    //     turntable_state = TURNTABLE_STATE::TURNTABLE_IDLE; 
-    //     turntable_module->publish_status(MODULE_STATUS::COMPLETE);
-    //   }
-      
-    //   break;
-    // };
+
 
 
 
