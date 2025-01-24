@@ -48,21 +48,21 @@ PHOTOBOOTH_STATE photobooth_state = PHOTOBOOTH_STATE::PHOTOBOOTH_IDLE;
 // ---------- ---------- PHOTOBOOTH FUNCTIONS ---------- ----------
 
 /**
- * Has the turntable reached the upper position
+ * Has the turntable reached the upper position? This is a pullup input.
  * 
  * @return T/F
  */
 bool upper_limit_switch() {  
-  return (digitalRead(UPPER_LIMIT_SWITCH_PIN) == 1);
+  return (digitalRead(UPPER_LIMIT_SWITCH_PIN) == 0);
 }
 
 /**
- * Has the turntable reached the lower position
+ * Has the turntable reached the lower position? This is a pullup input.
  * 
  * @return T/F
  */
 bool lower_limit_switch() { 
-  return (digitalRead(LOWER_LIMIT_SWITCH_PIN) == 1);
+  return (digitalRead(LOWER_LIMIT_SWITCH_PIN) == 0);
 }
 
 /**
@@ -287,8 +287,8 @@ void setup()
     calibrate_photobooth);
   
   // set pins to input/output mode
-  pinMode(UPPER_LIMIT_SWITCH_PIN, INPUT_PULLDOWN);
-  pinMode(LOWER_LIMIT_SWITCH_PIN, INPUT_PULLDOWN);
+  pinMode(UPPER_LIMIT_SWITCH_PIN, INPUT_PULLUP);
+  pinMode(LOWER_LIMIT_SWITCH_PIN, INPUT_PULLUP);
   pinMode(LED_BLUE, OUTPUT);
   pinMode(LED_YELLOW, OUTPUT);
   pinMode(LED_GREEN, OUTPUT);
