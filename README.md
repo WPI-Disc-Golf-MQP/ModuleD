@@ -75,4 +75,73 @@ It then sets the initial state for all pins.
 
  *state machine diagram*
 
- 
+ ## routines included from node_templates.py
+
+ The routines that are available because we are inheriting from the serial_node() class specified in node_templates.py are listed below. We should make note of any that we override in the specific hal__photobooth() class.
+
+ ### __init__
+
+ This is the object constructor. It sets up the topics that are published and subscribed.
+
+ At the end of initialization, it requests that the system initialize.
+
+ ### request(self, request:REQUEST)
+
+ This publishes the request (specified in the REQUEST class as an enum) on the *module*_status topic and updates the last_request. This topic is subcribet to by the SAMD and is the way to send commands to the SAMD.
+
+ ### update(self, msg)
+
+ This is the function that handles messages that come in on the *module*_status topic. These are messages that are sent by the SAMD.
+
+ This will try to set status to the status indicated by the msg (specified in the MODULE_STATUS class as an enum). If this is a change to the status, log the status change.
+
+ If the status is COMPLETE, then call the comletion_callback function if it is defined.
+
+ Then, it calls _check_callbacks().
+
+ ### receive_state(self, msg:Int8)
+
+ This is the function that handles messages that come in on the *module*_state topic. These are messages that are sent by the SAMD.
+
+ If there is a state_change_callback function defined, it will call it.
+
+ The state is updated to the state sent by the SAMD.
+
+ If the state was changed to IDLE, then call the completion_callback.
+
+ ### get_state(self) -> int
+ ### get_status(self) -> MODULE_STATUS
+
+These are getter functions.
+
+### set_offline_callback(self, callback:CALLABLE)
+### set_online_callback(self, callback:CALLABLE)
+
+These are setter functions.
+
+### _check_callbacks(self)
+
+**TODO**
+
+### start(self)
+
+Send a START request to the SAMD.
+
+### stop(self)
+
+Send a STOP request to the SAMD.
+
+### complete(self) -> bool
+### verify_complete(self) -> bool
+
+complete() is the same as verify_complete().
+
+If the status is not IN_PROGRESS and the timeout period has passed, then return False.
+
+Otherwise, return True if the last_complete is within the timeout?
+
+*need to check if this is correct*
+
+### ready(self) -> bool
+
+Returns True is the status is IDLE.
