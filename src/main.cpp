@@ -25,7 +25,7 @@ int UPPER_LIMIT_SWITCH_PIN = 2;
 int LOWER_LIMIT_SWITCH_PIN = 3;
 int LIFT_MOTOR_SPEED_PIN = 9;
 int LIFT_MOTOR_DIRECTION_PIN = 6;
-// pins for stepper motor
+int TURNTABLE_STEP_PIN = 8;
 
 // timers
 long turning_start_time;
@@ -65,10 +65,6 @@ bool lower_limit_switch() {
   return (digitalRead(LOWER_LIMIT_SWITCH_PIN) == 0);
 }
 
-/**
- * Turn turntable routines
- */
-
 
 // ---------- ---------- PHOTOBOOTH CALLBACKS ---------- ----------
 
@@ -99,16 +95,6 @@ void start_photobooth() {
 bool verify_photobooth_complete() {
   return photobooth_state == PHOTOBOOTH_STATE::PHOTOBOOTH_IDLE;
 }
-
-// ?
-// bool run_yaxis_motor = false;
-// long yaxis_motor_last_step = millis();
-// bool yaxis_motor_last_digital_write = false;
-
-// ?
-// bool run_spin_motor = false; 
-// long spin_motor_last_step = millis();
-// bool spin_motor_last_digital_write = false;
 
 
 /**
@@ -158,18 +144,6 @@ void check_photobooth() {
     analogWrite(LIFT_MOTOR_SPEED_PIN, 0);
   }
 
-  
-  // if (run_spin_motor == true) {
-  //   // TODO: // digitalWrite() // digital write the stepper motor enable high 
-  // } else {
-  //   // TODO: // digial write stepper motor enable low 
-  // }
-
-  // if ((spin_motor_last_step+2 < millis()) && run_spin_motor == true) {
-  //   // TODO: add the spin stepper motor
-  // }
-
-
   switch (photobooth_state) {
     case PHOTOBOOTH_STATE::PHOTOBOOTH_IDLE:
       // Blue LED only
@@ -209,11 +183,28 @@ void check_photobooth() {
       digitalWrite(LED_YELLOW, HIGH);
       digitalWrite(LED_GREEN, LOW);
 
-      if (millis() > turning_start_time + 2000) {
-        lift_motor_up = false;
-        lift_motor_run = true;
-        photobooth_state = PHOTOBOOTH_STATE::PHOTOBOOTH_LOWERING;
+      // take images every 45 degrees
+      for (int view = 0; view < 360;  +view = view 45) {
+        // turn 45 degrees (25 steps)
+        for (int step = 0; step < 25; step++) {
+          digitalWrite(TURNTABLE_STEP_PIN, HIGH);
+          delay(100);
+          digitalWrite(TURNTABLE_STEP_PIN, LOW);
+          delay(100);
+        }
+        // call node to take images
+        // for now, flash all LEDs
+        digitalWrite(LED_BLUE, HIGH);
+        digitalWrite(LED_YELLOW, LOW);
+        delay(1000);
+        digitalWrite(LED_BLUE, LOW);
+        digitalWrite(LED_YELLOW, HIGH);
       }
+
+      // get ready to lower lift
+      lift_motor_up = false;
+      lift_motor_run = true;
+      photobooth_state = PHOTOBOOTH_STATE::PHOTOBOOTH_LOWERING;
 
       break;
     
@@ -238,40 +229,6 @@ void check_photobooth() {
 };
 
 
-    // case TURNTABLE_STATE::TURNTABLE_SPINNING:
-    // //TALK TO THE PI TO TAKE PICTURES
-    // // TODO: do not dead recon this section, actually get confirmation from the pi that picture taking is complete 
-      
-    //   if (when_spinning_started+2000 < millis()) {
-    //     turntable_state = TURNTABLE_STATE::TURNTABLE_LOWERING; 
-    //     digitalWrite(yaxis_motor_dir_pin, HIGH);
-    //     run_yaxis_motor = true; 
-    //   }
-
-    //   break;
-
-
-
-
-// // ---------- ---------- INTAKE TIMER CHECK & HANDLE ---------- ----------
-
-// bool check_intake_timer()
-// {
-//     return moved_to_INTAKE_RELEASE_time + 2000 < millis();
-// }
-
-// void handle_intake_timer()
-// {
-//     if (intake_state == INTAKE_STATE::INTAKE_SEND)
-//     {
-//         start_top_motor();
-//         start_teeth_motor();
-//         stop_intake_motor();
-//         intake_state = INTAKE_STATE::INTAKE_RECIEVE;
-//     }
-// }
-
-
 // ---------- ---------- SETUP ---------- ----------
 
 void setup()
@@ -294,6 +251,7 @@ void setup()
   pinMode(LED_GREEN, OUTPUT);
   pinMode(LIFT_MOTOR_SPEED_PIN, OUTPUT);
   pinMode(LIFT_MOTOR_DIRECTION_PIN, OUTPUT);
+  pinMode(TURNTABLE_STEP_PIN, OUTPUT);
 
   // set intial state
   // All LEDs on
@@ -302,6 +260,7 @@ void setup()
   digitalWrite(LED_GREEN, LOW);
   digitalWrite(LIFT_MOTOR_DIRECTION_PIN, LOW);
   analogWrite(LIFT_MOTOR_SPEED_PIN, 0);
+  digitalWrite(TURNTABLE_STEP_PIN, LOW);
 
   loginfo("setup() Complete");
 }
