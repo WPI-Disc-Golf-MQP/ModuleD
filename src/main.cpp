@@ -184,7 +184,7 @@ void check_photobooth() {
       digitalWrite(LED_GREEN, LOW);
 
       // take images every 45 degrees
-      for (int view = 0; view < 360;  +view = view 45) {
+      for (int view = 0; view < 360;  view = view + 45) {
         // turn 45 degrees (25 steps)
         for (int step = 0; step < 25; step++) {
           digitalWrite(TURNTABLE_STEP_PIN, HIGH);
