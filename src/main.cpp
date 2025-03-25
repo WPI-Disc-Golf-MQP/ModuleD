@@ -3,14 +3,14 @@
 
 #include <Arduino.h>
 
-// #define Serial SerialUSB
+#define Serial SerialUSB
 
-// #undef min
-// #undef max
+#undef min
+#undef max
 
 #include <std_node.cpp>
-// #include <std_msgs/Bool.h>
-// #include <std_msgs/Empty.h>
+#include <std_msgs/Bool.h>
+#include <std_msgs/Empty.h>
 
 // ---------- PHOTOBOOTH MODULE ----------
 MODULE *photobooth_module;
@@ -26,6 +26,7 @@ int LOWER_LIMIT_SWITCH_PIN = 3;
 int LIFT_MOTOR_SPEED_PIN = 9;
 int LIFT_MOTOR_DIRECTION_PIN = 6;
 int TURNTABLE_STEP_PIN = 8;
+int TURNTABLE_DIR_PIN = 7; //NEW 
 
 // timers
 long turning_start_time;
@@ -188,9 +189,9 @@ void check_photobooth() {
         // turn 45 degrees (25 steps)
         for (int step = 0; step < 25; step++) {
           digitalWrite(TURNTABLE_STEP_PIN, HIGH);
-          delay(100);
+          delay(300); //changed from 100
           digitalWrite(TURNTABLE_STEP_PIN, LOW);
-          delay(100);
+          delay(300); //changed from 100
         }
         // call node to take images
         // for now, flash all LEDs
@@ -252,8 +253,13 @@ void setup()
   pinMode(LIFT_MOTOR_SPEED_PIN, OUTPUT);
   pinMode(LIFT_MOTOR_DIRECTION_PIN, OUTPUT);
   pinMode(TURNTABLE_STEP_PIN, OUTPUT);
+  pinMode(TURNTABLE_DIR_PIN, OUTPUT);//NEW
 
   // set intial state
+
+  //Initialize direction of the motor (NEW)
+  digitalWrite(TURNTABLE_DIR_PIN,HIGH); // Enables the motor to move in a particular direction (NEW)
+
   // All LEDs on
   digitalWrite(LED_BLUE, HIGH);
   digitalWrite(LED_YELLOW, LOW);
