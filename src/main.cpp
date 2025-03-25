@@ -32,7 +32,7 @@ int TURNTABLE_DIR_PIN = 7; //NEW
 long turning_start_time;
 
 // Motor controls
-int lift_motor_speed = 175;
+int lift_motor_speed = 200;
 bool lift_motor_run = false;
 bool lift_motor_up = true;
 
