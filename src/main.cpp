@@ -24,7 +24,7 @@ int LED_GREEN = PIN_LED_TXL;  // LOW for on
 int UPPER_LIMIT_SWITCH_PIN = 2;
 int LOWER_LIMIT_SWITCH_PIN = 3;
 int LIFT_MOTOR_SPEED_PIN = 9;
-int LIFT_MOTOR_DIRECTION_PIN = 6;
+int LIFT_MOTOR_INVERT_PIN = 6;
 int TURNTABLE_STEP_PIN = 8;
 int TURNTABLE_DIR_PIN = 7; //NEW 
 
@@ -32,7 +32,7 @@ int TURNTABLE_DIR_PIN = 7; //NEW
 long turning_start_time;
 
 // Motor controls
-int lift_motor_speed = 200;
+int lift_motor_speed = 200; // changing to negative did not change direction 
 bool lift_motor_run = false;
 bool lift_motor_up = true;
 
@@ -133,9 +133,9 @@ void check_photobooth() {
 
   // set lift motor direction
   if (lift_motor_up == true) {
-    digitalWrite(LIFT_MOTOR_DIRECTION_PIN, LOW);
+    digitalWrite(LIFT_MOTOR_INVERT_PIN, HIGH);//Switched from LOW -> High 
   } else {
-    digitalWrite(LIFT_MOTOR_DIRECTION_PIN, HIGH);
+    digitalWrite(LIFT_MOTOR_INVERT_PIN, LOW); //Switched from HIGH -> Low
   }
 
   // should the lift motor run?
@@ -251,7 +251,7 @@ void setup()
   pinMode(LED_YELLOW, OUTPUT);
   pinMode(LED_GREEN, OUTPUT);
   pinMode(LIFT_MOTOR_SPEED_PIN, OUTPUT);
-  pinMode(LIFT_MOTOR_DIRECTION_PIN, OUTPUT);
+  pinMode(LIFT_MOTOR_INVERT_PIN, OUTPUT);
   pinMode(TURNTABLE_STEP_PIN, OUTPUT);
   pinMode(TURNTABLE_DIR_PIN, OUTPUT);//NEW
 
@@ -264,7 +264,7 @@ void setup()
   digitalWrite(LED_BLUE, HIGH);
   digitalWrite(LED_YELLOW, LOW);
   digitalWrite(LED_GREEN, LOW);
-  digitalWrite(LIFT_MOTOR_DIRECTION_PIN, LOW);
+  digitalWrite(LIFT_MOTOR_INVERT_PIN, LOW);
   analogWrite(LIFT_MOTOR_SPEED_PIN, 0);
   digitalWrite(TURNTABLE_STEP_PIN, LOW);
 
